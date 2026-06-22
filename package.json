@@ -1,0 +1,64 @@
+{
+  "name": "care_excalidraw",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite preview & vite build --watch",
+    "build": "tsc -b && vite build",
+    "lint": "eslint .",
+    "preview": "vite preview",
+    "prepare": "husky"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ohcnetwork/care_excalidraw_fe.git"
+  },
+  "author": "Open Healthcare Network",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/ohcnetwork/care_excalidraw_fe/issues"
+  },
+  "homepage": "https://github.com/ohcnetwork/care_excalidraw_fe#readme",
+  "description": "",
+  "lint-staged": {
+    "*.{ts,tsx,js,jsx}": [
+      "prettier --write --ignore-unknown --plugin prettier-plugin-tailwindcss",
+      "eslint --fix"
+    ]
+  },
+  "dependencies": {
+    "@excalidraw/excalidraw": "^0.18.0-699826",
+    "@tailwindcss/vite": "^4.1.4",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
+    "lint-staged": "^15.5.1",
+    "lucide-react": "^0.575.0",
+    "radix-ui": "^1.6.0",
+    "raviger": "^5.3.0",
+    "react": "^19.2.7",
+    "react-dom": "^19.2.7",
+    "react-i18next": "^15.4.1",
+    "react-icons": "^5.6.0",
+    "tailwind-merge": "^3.2.0",
+    "tailwindcss": "^4.1.4"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.24.0",
+    "@originjs/vite-plugin-federation": "^1.4.1",
+    "@types/node": "^22.14.1",
+    "@types/react": "^19.1.1",
+    "@types/react-dom": "^19.1.2",
+    "@vitejs/plugin-react-swc": "^3.8.1",
+    "eslint": "^9.24.0",
+    "eslint-plugin-react-hooks": "^5.2.0",
+    "eslint-plugin-react-refresh": "^0.4.19",
+    "globals": "^16.0.0",
+    "husky": "^9.1.7",
+    "prettier": "^3.5.3",
+    "prettier-plugin-tailwindcss": "^0.6.11",
+    "typescript": "~5.8.3",
+    "typescript-eslint": "^8.29.1",
+    "vite": "^6.2.6"
+  }
+}

@@ -1,0 +1,6 @@
+dist
+public
+build
+*.css
+*.gen.tsx
+*.bs.js
