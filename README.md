@@ -4,6 +4,8 @@ A CARE plugin that embeds an [Excalidraw](https://excalidraw.com/) whiteboard
 into CARE, letting clinicians sketch and annotate diagrams directly within
 patient workflows.
 
+<img width="5088" height="3796" alt="image" src="https://github.com/user-attachments/assets/bfb49294-fad6-48fe-a791-3f3996ef552b" />
+
 > Built as a CARE micro-frontend using
 > [Module Federation](https://github.com/originjs/vite-plugin-federation). The
 > plugin exposes a `manifest` that CARE loads at runtime from a remote
