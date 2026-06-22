@@ -1,104 +1,172 @@
-# CARE Hello
+# CARE Excalidraw
 
-> A simple hello world CARE App boilerplate to get you started with CARE App development.
+A CARE plugin that embeds an [Excalidraw](https://excalidraw.com/) whiteboard
+into CARE, letting clinicians sketch and annotate diagrams directly within
+patient workflows.
 
-## Getting Started
+> Built as a CARE micro-frontend using
+> [Module Federation](https://github.com/originjs/vite-plugin-federation). The
+> plugin exposes a `manifest` that CARE loads at runtime from a remote
+> `remoteEntry.js`.
 
-1. Clone the repository and navigate to the project directory.
+## Tech stack
+
+- React 19 + TypeScript
+- Vite 6 with `@originjs/vite-plugin-federation`
+- `@excalidraw/excalidraw`
+- Tailwind CSS v4
+- `raviger` (routing) and `react-i18next` (localization) — shared with the CARE host
+
+## Getting started
+
+Clone the repository and install dependencies:
 
 ```bash
-git clone
-cd care_hello
-```
-
-2. Install the dependencies.
-
-```bash
+git clone https://github.com/ohcnetwork/care_excalidraw
+cd care_excalidraw
 npm install
 ```
 
-3. Start the development server.
+Start the dev server (builds the federated bundle in watch mode and serves a
+preview):
 
 ```bash
 npm run dev
 ```
 
-## Setting up your local app in CARE
+The plugin is served at `http://localhost:4173`, with the federation entry at
+`http://localhost:4173/assets/remoteEntry.js`.
 
-Make sure you have CARE running locally. Then, follow these steps:
+## Connecting the plugin to CARE
 
-1. Open the CARE Admin Dashboard in your browser (usually at `http://localhost:4000/admin`).
+Make sure you have CARE running locally, then:
 
-2. Navigate to the "Apps" section and click on "Add New Config".
+1. Open the CARE Admin Dashboard (usually `http://localhost:4000/admin`).
+2. Go to the **Apps** section and click **Add New Config**.
+3. Add a slug and set the following as the Meta:
 
-3. Add a slug, and specify the following as the Meta:
-
-```
-{
-  "url": "http://localhost:4173/assets/remoteEntry.js",
-  "name": "care-hello-fe"
-}
-```
+   ```json
+   {
+     "url": "http://localhost:4173/assets/remoteEntry.js",
+     "name": "care_excalidraw"
+   }
+   ```
 
 4. Save the configuration and reload CARE.
 
-5. Head over to a patient encounter page, and you should see a new "Hello!" button. Click on it to see the "Hello CARE!" page.
+> The `name` **must** match the federation `name` in `vite.config.ts`
+> (`care_excalidraw`). Changing one without the other will prevent CARE from
+> resolving the remote module.
 
-Tip: while developing this plugin, you can open `http://localhost:4173` to view a local status page that includes these setup steps and quick links.
+### Via the CARE App Store
 
-# Updating configuration
+This plugin is published in the
+[CARE Apps Registry](https://github.com/ohcnetwork/care_apps_registry) as
+`care_excalidraw`. When installing through the App Store, CARE computes the
+`meta.url` from the configured **App base URL** as
+`${appBaseUrl}/assets/remoteEntry.js`, so you only need to provide the base URL
+(e.g. `http://localhost:4173` for local development or
+`https://care-excalidraw.pages.dev` for production).
 
-The manifest is located at `src/manifest.tsx`. You can add new routes, components, and other configurations here. The boilerplate includes a sample route for a `Hello` page and a navigation link to access it. Types are provided for the manifest configuration to help you with type checking and autocompletion.
+## Project structure
 
-## Adding new routes
+```text
+care_excalidraw/
+  public/locale/        Localization message catalogs
+  src/
+    manifest.tsx        Plugin manifest (routes, components, nav links)
+    shims/              Shared-dependency interop shims
+  vite.config.ts        Federation + build configuration
+  .env                  Local environment defaults
+```
 
-Update the manifest's `routes` object to include new routes. For example, to add a new route for a `Hello` page, you can do the following:
+## Configuring the manifest
+
+The manifest lives at `src/manifest.tsx` and is the contract between this plugin
+and CARE. Use it to register routes, mount components into CARE UI slots, and add
+navigation links.
+
+### Add a route
 
 ```tsx
-import Hello from "./pages/Hello";
+import Whiteboard from "./pages/Whiteboard";
 
 export const manifest = {
   // ...
   routes: {
-    "/hello": () => (
+    "/excalidraw": () => (
       <Page>
-        <Hello />
+        <Whiteboard />
       </Page>
     ),
   },
 };
 ```
 
-## Adding new components
-
-You can mount custom components in the app by adding them in `components` in the manifest. For example, to add a new `Button` component, you can do the following:
+### Mount a component into a CARE slot
 
 ```tsx
 export const manifest = {
   // ...
   components: {
-    PatientInfoCardQuickActions: lazy(() => import("./components/Button")),
+    PatientInfoCardQuickActions: lazy(() => import("./components/OpenBoardButton")),
   },
 };
 ```
 
-CARE will then inject the `Button` component into wherever the `PatientInfoCardQuickActions` slot is defined in CARE's UI. You can find the list of available slots [here](https://github.com/ohcnetwork/care_fe/blob/4c47494a862203cbb4c83c0cd4b73a06de585da9/src/pluginTypes.ts#L88). If you want to create your own custom slot, you can do that as well.
+CARE injects the component wherever the named slot is defined in its UI.
 
-## Add new navigation links
-
-You can add new navigation links to the sidebar, user menu, or admin sidebar by updating the manifest. For example -
+### Add a navigation link
 
 ```tsx
 export const manifest = {
   // ...
   userNavItems: [
     {
-      url: "/hello";
-      name: "Hello";
-      icon?: <icon/>;
-      children?: NavigationLink[];
-    }
+      url: "/excalidraw",
+      name: "Whiteboard",
+    },
   ],
 };
-
 ```
+
+## Building and deploying
+
+Create a production build:
+
+```bash
+npm run build
+```
+
+The output in `dist/` is a set of static assets (including
+`assets/remoteEntry.js`) that can be served from any static host. The hosted
+build is deployed to **https://care-excalidraw.pages.dev** via Cloudflare Pages.
+
+## Shared dependencies
+
+`react`, `react-dom`, `react-i18next`, and `raviger` are declared as `shared` in
+`vite.config.ts` so the plugin reuses the CARE host's instances instead of
+bundling its own. Keep these versions compatible with the host to avoid
+duplicate-React issues.
+
+> **Note:** `@excalidraw/excalidraw` pulls in `zustand@4`, which imports the
+> CommonJS-only `use-sync-external-store/shim/with-selector`. That import escapes
+> the federation plugin's ESM React rewriting and would otherwise bind to the
+> remote's bundled React (causing
+> `Cannot read properties of null (reading 'useRef')` at render time). It is
+> aliased to an ESM shim in `vite.config.ts` so it routes through the host's
+> shared React instance. Keep that alias in place.
+
+## Scripts
+
+| Command           | Description                                          |
+| ----------------- | ---------------------------------------------------- |
+| `npm run dev`     | Build in watch mode and serve the preview on `:4173` |
+| `npm run build`   | Type-check and produce a production build            |
+| `npm run preview` | Serve a previously built bundle                       |
+| `npm run lint`    | Run ESLint                                            |
+
+## License
+
+MIT
+`
