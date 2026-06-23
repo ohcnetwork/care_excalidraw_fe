@@ -24,8 +24,8 @@ patient workflows.
 Clone the repository and install dependencies:
 
 ```bash
-git clone https://github.com/ohcnetwork/care_excalidraw
-cd care_excalidraw
+git clone https://github.com/ohcnetwork/care_excalidraw_fe
+cd care_excalidraw_fe
 npm install
 ```
 
@@ -73,4 +73,3 @@ This plugin is published in the
 ## License
 
 MIT
-
