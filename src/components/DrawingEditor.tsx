@@ -70,9 +70,9 @@ export const DrawingEditor: React.FC<DrawingEditorProps> = ({
           files,
           sceneVersion: hashElementsVersion(elements),
         };
-        setIsDirty(oldSceneVersion !== value.sceneVersion);
         if (oldSceneVersion !== value.sceneVersion) {
           onChange(value);
+          setIsDirty(true);
         }
       }, 100)}
       renderTopRightUI={() => (
@@ -87,7 +87,10 @@ export const DrawingEditor: React.FC<DrawingEditorProps> = ({
           </style>
           {handleSave && (
             <Button
-              onSelect={() => handleSave()}
+              onSelect={() => {
+                handleSave();
+                setIsDirty(false);
+              }}
               title="Save"
               disabled={disabled}
             >
