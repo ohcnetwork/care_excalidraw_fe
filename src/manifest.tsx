@@ -1,45 +1,47 @@
 import { lazy, LazyExoticComponent } from "react";
-import { MetaArtifactDrawingApplication } from "@/types/meta-artifact";
-import { DrawingPreviewProps } from "@/components/DrawingPreview";
-import { DrawingEditorProps } from "@/components/DrawingEditor";
 
-import "@/style/index.css";
-import { SiExcalidraw } from "react-icons/si";
+import Page from "@/components/Page";
+import { ExcalidrawEditorPage } from "@/pages/ExcalidrawEditor";
+import { EncounterFileSubTabProps } from "@/components/EncounterFileDrawingsTab";
 
 type LazyComponent<T extends React.FC<any>> = LazyExoticComponent<T>;
-
-export type DrawingApplicationManifest = {
-  application: string;
-  icon: React.FC<React.HTMLAttributes<HTMLElement>>;
-  previewer: LazyComponent<React.FC<DrawingPreviewProps>>;
-  editor: LazyComponent<React.FC<DrawingEditorProps>>;
-};
 
 interface Manifest {
   plugin: string;
   routes: Record<string, (...args: any) => React.ReactNode>;
-  drawingApplications?: readonly DrawingApplicationManifest[];
+  encounterFileTabs?: Record<
+    string,
+    LazyComponent<React.FC<EncounterFileSubTabProps>>
+  >;
 }
 
 const manifest: Manifest = {
   plugin: "care_excalidraw",
-  drawingApplications: [
-    {
-      application: MetaArtifactDrawingApplication.EXCALIDRAW,
-      icon: () => <SiExcalidraw />,
-      previewer: lazy(() =>
-        import("@/components/DrawingPreview").then((mod) => ({
-          default: mod.DrawingPreview,
-        })),
+  routes: {
+    "/facility/:facilityId/patient/:patientId/drawing/:drawingId": (props) => (
+      <Page>
+        <ExcalidrawEditorPage {...props} />
+      </Page>
+    ),
+    "/patient/:patientId/drawing/:drawingId": (props) => (
+      <Page>
+        <ExcalidrawEditorPage {...props} />
+      </Page>
+    ),
+    "/facility/:facilityId/patient/:patientId/encounter/:encounterId/drawing/:drawingId":
+      (props) => (
+        <Page>
+          <ExcalidrawEditorPage {...props} />
+        </Page>
       ),
-      editor: lazy(() =>
-        import("@/components/DrawingEditor").then((mod) => ({
-          default: mod.DrawingEditor,
-        })),
-      ),
-    },
-  ],
-  routes: {},
+  },
+  encounterFileTabs: {
+    drawings: lazy(() =>
+      import("@/components/EncounterFileDrawingsTab").then((module) => ({
+        default: module.EncounterFileDrawingsTab,
+      })),
+    ),
+  },
 };
 
 export default manifest;

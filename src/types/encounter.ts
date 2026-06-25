@@ -1,4 +1,5 @@
 import { PatientRead } from "@/types/patient";
+import { Permission } from "@/types/permission";
 
 export enum EncounterStatus {
   PLANNED = "planned",
@@ -22,7 +23,7 @@ export const INACTIVE_ENCOUNTER_STATUSES = [
 
 export interface EncounterRead {
   id: string;
-  permissions: string[];
+  permissions: Permission[];
   patient: PatientRead;
   status: EncounterStatus;
 }

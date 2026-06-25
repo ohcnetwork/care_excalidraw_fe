@@ -6,7 +6,7 @@ import { exportToSvg } from "@excalidraw/excalidraw";
 import { LoaderCircleIcon } from "lucide-react";
 import React, { memo, useRef, useState } from "react";
 
-const ExcalidrawPreview = memo(
+const ExcalidrawPreviewBase = memo(
   ({ elements, files }: Omit<ExcalidrawDrawingObjectValue, "application">) => {
     const svgContainerRef = useRef<HTMLDivElement>(null);
     const [isLoading, setIsLoading] = useState(true);
@@ -90,15 +90,15 @@ const ExcalidrawPreview = memo(
   },
 );
 
-ExcalidrawPreview.displayName = "ExcalidrawPreview";
+ExcalidrawPreviewBase.displayName = "ExcalidrawPreview";
 
 export interface DrawingPreviewProps {
   obj: MetaArtifactRead;
 }
 
-export const DrawingPreview: React.FC<DrawingPreviewProps> = ({ obj }) => {
+export const ExcalidrawPreview: React.FC<DrawingPreviewProps> = ({ obj }) => {
   return (
-    <ExcalidrawPreview
+    <ExcalidrawPreviewBase
       elements={obj.object_value.elements}
       files={obj.object_value.files}
       key={obj.modified_date}

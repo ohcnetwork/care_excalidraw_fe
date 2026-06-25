@@ -5,5 +5,18 @@
   "save_and_go_back": "Save & Go Back",
   "enter_drawing_name": "Enter name for the drawing",
   "back": "Back",
-  "save": "Save"
+  "save": "Save",
+  "saved": "Saved",
+  "close": "Close",
+  "view": "View",
+  "invalid_date": "Invalid Date",
+  "search": "Search",
+  "new_drawing": "New Drawing",
+  "name": "Name",
+  "note": "Note",
+  "optional": "Optional",
+  "create": "Create",
+  "create_new_drawing_message": "Click on 'New Drawing' to create your first drawing",
+  "unsupported_drawing_application": "Application '{{ application }}' is not supported",
+  "no_drawings_so_far": "No drawings so far"
 }
