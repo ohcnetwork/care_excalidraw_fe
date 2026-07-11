@@ -1,7 +1,9 @@
 @config '../../tailwind.config.js';
+@import "tailwindcss/theme";
+@import "tailwindcss/preflight";
 
 .care-excalidraw-container {
-  @import "tailwindcss";
+  @import "tailwindcss/utilities";
 }
 
 /*
