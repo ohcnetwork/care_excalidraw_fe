@@ -4,12 +4,10 @@
   "description": "CARE plugin that brings an Excalidraw-powered whiteboard into CARE, letting clinicians sketch and annotate diagrams directly within patient workflows.",
   "publisher": "ohcnetwork",
   "license": "MIT",
-  "icon": "https://docs.excalidraw.com/img/logo.svg",
-  "categories": [
-    "productivity"
-  ],
+  "icon": "https://care-3-1.care-excalidraw.pages.dev/logo.png",
+  "categories": ["productivity"],
   "frontend": {
-    "url": "https://care-excalidraw.pages.dev/assets/remoteEntry.js",
+    "url": "https://care-3-1.care-excalidraw.pages.dev/assets/remoteEntry.js",
     "name": "care_excalidraw_fe",
     "plug": "care_excalidraw_fe"
   }
