@@ -8,11 +8,29 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import {
+  Empty,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from "@/components/ui/empty";
+import {
+  Frame,
+  FrameFooter,
+  FrameHeader,
+  FramePanel,
+} from "@/components/ui/frame";
 import { Input } from "@/components/ui/input";
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupInput,
+} from "@/components/ui/input-group";
 import { Label } from "@/components/ui/label";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Textarea } from "@/components/ui/textarea";
 import { ExcalidrawPreview } from "@/components/ExcalidrawPreview";
-import { Loading } from "@/components/Loading";
 import Pagination from "@/components/Pagination";
 import RelativeDateTooltip from "@/components/RelativeDateTooltip";
 import { useTranslation } from "@/hooks/use-translation";
@@ -27,7 +45,12 @@ import {
 } from "@/types/meta-artifact";
 import { PatientRead } from "@/types/patient";
 import { Permission } from "@/types/permission";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  keepPreviousData,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
 import {
   EyeIcon,
   FilePenLineIcon,
@@ -140,10 +163,7 @@ const NewDrawingButton = (props: NewDrawingButtonProps) => {
 
   return (
     <>
-      <Button
-        variant="outline_primary"
-        onClick={() => setShowCreateModal(true)}
-      >
+      <Button variant="outline" onClick={() => setShowCreateModal(true)}>
         <PlusIcon />
         {t("new_drawing")}
       </Button>
@@ -247,63 +267,100 @@ export const EncounterFileDrawingsTab: React.FC<EncounterFileSubTabProps> = (
       },
     }),
     enabled: canRead,
+    placeholderData: keepPreviousData,
   });
+
+  const totalCount = data?.count ?? 0;
 
   return (
     <Page>
-      <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
-        <div className="relative ml-1 max-w-96 min-w-72 flex-1">
-          <SearchIcon className="text-muted-foreground absolute top-1/2 left-3 size-4 -translate-y-1/2" />
-          <Input
-            placeholder={t("search")}
-            value={search || ""}
-            onChange={(e) => {
-              setPage(1);
-              setSearch(e.target.value);
-            }}
-            className="pl-8"
-          />
-        </div>
-        {canWrite && (
-          <NewDrawingButton
-            associatingType={props.type}
-            associatingId={associatingId}
-          />
-        )}
-      </div>
-
-      {isLoading ? (
-        <Loading />
-      ) : (
-        <>
-          {data?.results.length === 0 ? (
-            <div className="text-muted-foreground flex flex-col items-center justify-center p-8">
-              <ImageOffIcon className="mb-2 text-4xl" />
-              <p className="text-lg font-medium">{t("no_drawings_so_far")}</p>
-              {canWrite && (
-                <p className="text-sm">{t("create_new_drawing_message")}</p>
-              )}
+      <Frame spacing="sm" className="min-w-0">
+        <FrameHeader className="flex-row flex-wrap items-center gap-2">
+          <InputGroup className="bg-background sm:w-auto sm:max-w-xs sm:flex-1">
+            <InputGroupInput
+              aria-label={t("search_drawings")}
+              placeholder={t("search_drawings")}
+              value={search}
+              onChange={(e) => {
+                setPage(1);
+                setSearch(e.target.value);
+              }}
+            />
+            <InputGroupAddon>
+              <SearchIcon />
+            </InputGroupAddon>
+          </InputGroup>
+          {canWrite && (
+            <div className="ml-auto">
+              <NewDrawingButton
+                associatingType={props.type}
+                associatingId={associatingId}
+              />
             </div>
+          )}
+        </FrameHeader>
+
+        <FramePanel className="min-w-0 p-3">
+          {isLoading ? (
+            <div
+              className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3"
+              role="status"
+              aria-label={t("loading")}
+            >
+              {Array.from({ length: 3 }, (_, index) => (
+                <Skeleton key={index} className="h-80 w-full md:h-60" />
+              ))}
+            </div>
+          ) : !data?.results.length ? (
+            <Empty className="p-6 sm:p-10">
+              <EmptyHeader>
+                <EmptyMedia variant="icon">
+                  <ImageOffIcon />
+                </EmptyMedia>
+                <EmptyTitle>{t("no_drawings_so_far")}</EmptyTitle>
+                {search ? (
+                  <EmptyDescription>
+                    {t("no_drawings_match_search")}
+                  </EmptyDescription>
+                ) : (
+                  canWrite && (
+                    <EmptyDescription>
+                      {t("create_new_drawing_message")}
+                    </EmptyDescription>
+                  )
+                )}
+              </EmptyHeader>
+            </Empty>
           ) : (
-            <div className="ml-1 grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
-              {data?.results.map((drawing) => (
+            <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3">
+              {data.results.map((drawing) => (
                 <DrawingCard key={drawing.id} artifact={drawing} />
               ))}
             </div>
           )}
-        </>
-      )}
+        </FramePanel>
 
-      {data && (
-        <div className="mt-4 flex items-center justify-center">
-          <Pagination
-            cPage={page}
-            defaultPerPage={RESULTS_PER_PAGE}
-            data={{ totalCount: data.count }}
-            onChange={setPage}
-          />
-        </div>
-      )}
+        {totalCount > 0 && (
+          <FrameFooter className="flex-row flex-wrap items-center justify-between gap-3">
+            <p className="text-muted-foreground text-xs">
+              {t("drawings_result_range", {
+                start: (page - 1) * RESULTS_PER_PAGE + 1,
+                end: Math.min(page * RESULTS_PER_PAGE, totalCount),
+                total: totalCount,
+              })}
+            </p>
+            {totalCount > RESULTS_PER_PAGE && (
+              <Pagination
+                cPage={page}
+                defaultPerPage={RESULTS_PER_PAGE}
+                data={{ totalCount }}
+                onChange={setPage}
+                className=""
+              />
+            )}
+          </FrameFooter>
+        )}
+      </Frame>
     </Page>
   );
 };
