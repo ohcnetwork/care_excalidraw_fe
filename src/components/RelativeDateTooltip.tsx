@@ -1,6 +1,7 @@
-import { TooltipComponent } from "@/components/TooltipComponent";
 import { format, formatDistanceToNow, isValid } from "date-fns";
 import { useTranslation } from "react-i18next";
+
+import { TooltipComponent } from "@/components/ui/tooltip";
 
 type RelativeDateTooltipProps = {
   date: Date | string;
@@ -35,7 +36,7 @@ export default function RelativeDateTooltip({
       content={hasTime ? format(dateObj, "PPp zzz") : format(dateObj, "PP")}
     >
       <time dateTime={dateObj.toISOString()} className={className}>
-        {formatDistanceToNow(dateObj)}
+        {formatDistanceToNow(dateObj, { addSuffix: true })}
       </time>
     </TooltipComponent>
   );
