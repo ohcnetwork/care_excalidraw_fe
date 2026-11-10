@@ -8,13 +8,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import {
-  Empty,
-  EmptyDescription,
-  EmptyHeader,
-  EmptyMedia,
-  EmptyTitle,
-} from "@/components/ui/empty";
+import { EmptyState } from "@/components/ui/empty-state";
 import {
   Frame,
   FrameFooter,
@@ -28,9 +22,9 @@ import {
   InputGroupInput,
 } from "@/components/ui/input-group";
 import { Label } from "@/components/ui/label";
-import { Skeleton } from "@/components/ui/skeleton";
 import { Textarea } from "@/components/ui/textarea";
 import { ExcalidrawPreview } from "@/components/ExcalidrawPreview";
+import { Loading } from "@/components/Loading";
 import Pagination from "@/components/Pagination";
 import RelativeDateTooltip from "@/components/RelativeDateTooltip";
 import { useTranslation } from "@/hooks/use-translation";
@@ -300,37 +294,27 @@ export const EncounterFileDrawingsTab: React.FC<EncounterFileSubTabProps> = (
           )}
         </FrameHeader>
 
-        <FramePanel className="min-w-0 p-3">
+        <FramePanel
+          className={cn(
+            "min-w-0",
+            data?.results.length ? "p-3" : "overflow-hidden p-0",
+          )}
+        >
           {isLoading ? (
-            <div
-              className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3"
-              role="status"
-              aria-label={t("loading")}
-            >
-              {Array.from({ length: 3 }, (_, index) => (
-                <Skeleton key={index} className="h-80 w-full md:h-60" />
-              ))}
-            </div>
+            <Loading />
           ) : !data?.results.length ? (
-            <Empty className="p-6 sm:p-10">
-              <EmptyHeader>
-                <EmptyMedia variant="icon">
-                  <ImageOffIcon />
-                </EmptyMedia>
-                <EmptyTitle>{t("no_drawings_so_far")}</EmptyTitle>
-                {search ? (
-                  <EmptyDescription>
-                    {t("no_drawings_match_search")}
-                  </EmptyDescription>
-                ) : (
-                  canWrite && (
-                    <EmptyDescription>
-                      {t("create_new_drawing_message")}
-                    </EmptyDescription>
-                  )
-                )}
-              </EmptyHeader>
-            </Empty>
+            <EmptyState
+              className="border-0 sm:p-10"
+              icon={<ImageOffIcon className="size-6" />}
+              title={t("no_drawings_so_far")}
+              description={
+                search
+                  ? t("no_drawings_match_search")
+                  : canWrite
+                    ? t("create_new_drawing_message")
+                    : undefined
+              }
+            />
           ) : (
             <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3">
               {data.results.map((drawing) => (
