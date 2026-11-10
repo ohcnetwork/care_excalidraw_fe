@@ -18,5 +18,8 @@
   "create": "Create",
   "create_new_drawing_message": "Click on 'New Drawing' to create your first drawing",
   "unsupported_drawing_application": "Application '{{ application }}' is not supported",
-  "no_drawings_so_far": "No drawings so far"
+  "no_drawings_so_far": "No drawings so far",
+  "search_drawings": "Search drawings",
+  "drawings_result_range": "Showing {{start}}–{{end}} of {{total}} drawings",
+  "no_drawings_match_search": "No drawings match your search. Try a different name."
 }

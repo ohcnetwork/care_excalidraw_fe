@@ -1,4 +1,4 @@
-import { Button } from "@/components/careui/button";
+import { Button } from "@/components/ui/button";
 import manifest from "@/manifest";
 
 export default function Main() {
