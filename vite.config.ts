@@ -43,24 +43,35 @@ export default defineConfig({
     },
   },
   resolve: {
-    alias: {
-      "@": path.resolve(__dirname, "./src"),
-      // `zustand@4` (via @excalidraw/excalidraw) imports the CommonJS-only
-      // `use-sync-external-store/shim/with-selector`, whose `require("react")`
+    alias: [
+      { find: "@", replacement: path.resolve(__dirname, "./src") },
+      // `use-sync-external-store` is CommonJS-only; its `require("react")`
       // escapes the federation plugin's ESM react-import rewriting and binds to
       // the remote's bundled React instead of the host's shared one — causing
-      // "Cannot read properties of null (reading 'useRef')" at render time.
-      // Alias it to an ESM shim that imports React as a bare specifier so
-      // federation routes it through the shared (host) React instance.
-      "use-sync-external-store/shim/with-selector.js": path.resolve(
-        __dirname,
-        "./src/shims/use-sync-external-store-with-selector.ts",
-      ),
-      "use-sync-external-store/shim/with-selector": path.resolve(
-        __dirname,
-        "./src/shims/use-sync-external-store-with-selector.ts",
-      ),
-    },
+      // "Cannot read properties of null (reading 'useRef' /
+      // 'useSyncExternalStore')" at render time. Alias each entry point to an
+      // ESM shim that imports React as a bare specifier so federation routes it
+      // through the shared (host) React instance.
+      //   - `shim/with-selector`: zustand@4 (via @excalidraw/excalidraw) and
+      //     @base-ui/utils
+      //   - `shim` and the package root: @base-ui/utils (@base-ui/react)
+      // Anchored regexes: string aliases match by prefix, so `…/shim` would
+      // otherwise also capture `…/shim/with-selector`.
+      {
+        find: /^use-sync-external-store\/shim\/with-selector(\.js)?$/,
+        replacement: path.resolve(
+          __dirname,
+          "./src/shims/use-sync-external-store-with-selector.ts",
+        ),
+      },
+      {
+        find: /^use-sync-external-store(\/shim)?(\/index)?(\.js)?$/,
+        replacement: path.resolve(
+          __dirname,
+          "./src/shims/use-sync-external-store.ts",
+        ),
+      },
+    ],
   },
   preview: {
     port: Number(process.env.PORT) || 4173,
