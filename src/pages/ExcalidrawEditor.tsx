@@ -10,13 +10,14 @@ import { mutate, query } from "@/lib/http-request";
 import { metaArtifactApis } from "@/api/meta-artifact";
 import { Loading } from "@/components/Loading";
 import { toast } from "sonner";
-import { debounce, goBack } from "@/lib/utils";
+import { debounce } from "@/lib/utils";
+import { useDrawingNavigation } from "@/hooks/use-drawing-navigation";
 import {
   Button,
   Excalidraw,
   hashElementsVersion,
 } from "@excalidraw/excalidraw";
-import { useNavigationPrompt } from "raviger";
+import { useBlocker } from "@tanstack/react-router";
 import { SaveIcon, XIcon } from "lucide-react";
 
 import "@excalidraw/excalidraw/index.css";
@@ -31,8 +32,13 @@ export const ExcalidrawEditorPage: React.FC<Props> = ({ drawingId }) => {
 
   const [value, setValue] = useState<ExcalidrawDrawingObjectValue>();
   const [isDirty, setIsDirty] = useState(false);
+  const { closeDrawing } = useDrawingNavigation();
 
-  useNavigationPrompt(isDirty, t("unsaved_changes"));
+  useBlocker({
+    shouldBlockFn: () => !window.confirm(t("unsaved_changes")),
+    enableBeforeUnload: true,
+    disabled: !isDirty,
+  });
 
   const { data, isFetching: isFetchingDrawing } = useQuery({
     queryKey: ["drawing", drawingId],
@@ -82,7 +88,7 @@ export const ExcalidrawEditorPage: React.FC<Props> = ({ drawingId }) => {
         onSuccess: () => {
           toast.success(t("saved"), { duration: 700 });
           console.log({ isDirty });
-          goBack();
+          closeDrawing();
         },
       },
     );
@@ -133,7 +139,7 @@ export const ExcalidrawEditorPage: React.FC<Props> = ({ drawingId }) => {
               <SaveIcon className="size-full" />
             </Button>
             <Button
-              onSelect={() => goBack()}
+              onSelect={() => closeDrawing()}
               title={t("close")}
               disabled={isSaving}
             >

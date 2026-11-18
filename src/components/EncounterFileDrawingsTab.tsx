@@ -55,9 +55,9 @@ import {
   TriangleAlertIcon,
   UserIcon,
 } from "lucide-react";
-import { navigate } from "raviger";
 import { useState } from "react";
 import Page from "@/components/Page";
+import { useDrawingNavigation } from "@/hooks/use-drawing-navigation";
 
 const RESULTS_PER_PAGE = 15;
 
@@ -119,6 +119,7 @@ interface NewDrawingButtonProps {
 const NewDrawingButton = (props: NewDrawingButtonProps) => {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
+  const { openDrawing } = useDrawingNavigation();
 
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [name, setName] = useState("");
@@ -136,7 +137,7 @@ const NewDrawingButton = (props: NewDrawingButtonProps) => {
       setShowCreateModal(false);
       setName("");
       setNote("");
-      navigate(`./drawing/${data.id}`);
+      openDrawing(data.id);
     },
   });
 
@@ -351,9 +352,10 @@ export const EncounterFileDrawingsTab: React.FC<EncounterFileSubTabProps> = (
 
 const DrawingCard = ({ artifact }: { artifact: MetaArtifactRead }) => {
   const { t } = useTranslation();
+  const { openDrawing } = useDrawingNavigation();
 
   const handleSelect = () => {
-    navigate(`./drawing/${artifact.id}`);
+    openDrawing(artifact.id);
   };
 
   const isSupported =

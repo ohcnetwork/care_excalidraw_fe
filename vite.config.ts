@@ -18,7 +18,8 @@ export default defineConfig({
         "react-dom",
         "react-i18next",
         "@tanstack/react-query",
-        "raviger",
+        // One router instance: the plug navigates with the host's router.
+        "@tanstack/react-router",
         "sonner",
       ],
     }),

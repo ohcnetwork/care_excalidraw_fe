@@ -20,14 +20,6 @@ export function debounce<T extends unknown[], U>(
 
 export const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
-export const goBack = () => {
-  if (window.history.length > 1) {
-    return history.back();
-  }
-
-  history.back();
-};
-
 export const formatName = (
   user?: {
     first_name: string;

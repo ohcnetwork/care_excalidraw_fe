@@ -17,7 +17,8 @@ patient workflows.
 - Vite 6 with `@originjs/vite-plugin-federation`
 - `@excalidraw/excalidraw`
 - Tailwind CSS v4
-- `raviger` (routing) and `react-i18next` (localization) — shared with the CARE host
+- `@tanstack/react-router` (routing) and `react-i18next` (localization) — shared with the CARE host.
+  The plug needs a CARE host that shares `@tanstack/react-router`.
 
 ## Getting started
 
