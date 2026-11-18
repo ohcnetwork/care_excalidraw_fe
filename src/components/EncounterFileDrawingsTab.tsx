@@ -1,16 +1,28 @@
 import { metaArtifactApis } from "@/api/meta-artifact";
-import { Button } from "@/components/careui/button";
-import { Card, CardContent } from "@/components/careui/card";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 import {
   Dialog,
   DialogContent,
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/careui/dialog";
-import { Input } from "@/components/careui/input";
-import { Label } from "@/components/careui/label";
-import { Textarea } from "@/components/careui/textarea";
+} from "@/components/ui/dialog";
+import { EmptyState } from "@/components/ui/empty-state";
+import {
+  Frame,
+  FrameFooter,
+  FrameHeader,
+  FramePanel,
+} from "@/components/ui/frame";
+import { Input } from "@/components/ui/input";
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupInput,
+} from "@/components/ui/input-group";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import { ExcalidrawPreview } from "@/components/ExcalidrawPreview";
 import { Loading } from "@/components/Loading";
 import Pagination from "@/components/Pagination";
@@ -27,7 +39,12 @@ import {
 } from "@/types/meta-artifact";
 import { PatientRead } from "@/types/patient";
 import { Permission } from "@/types/permission";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  keepPreviousData,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
 import {
   EyeIcon,
   FilePenLineIcon,
@@ -140,10 +157,7 @@ const NewDrawingButton = (props: NewDrawingButtonProps) => {
 
   return (
     <>
-      <Button
-        variant="outline_primary"
-        onClick={() => setShowCreateModal(true)}
-      >
+      <Button variant="outline" onClick={() => setShowCreateModal(true)}>
         <PlusIcon />
         {t("new_drawing")}
       </Button>
@@ -158,7 +172,9 @@ const NewDrawingButton = (props: NewDrawingButtonProps) => {
           }
         }}
       >
-        <DialogContent>
+        {/* The dialog portals to <body>, outside <Page>; the container class
+            scopes this plug's styles to the dialog's content. */}
+        <DialogContent className="care-excalidraw-container">
           <form onSubmit={handleCreateDrawing}>
             <DialogHeader>
               <DialogTitle>{t("new_drawing")}</DialogTitle>
@@ -189,7 +205,7 @@ const NewDrawingButton = (props: NewDrawingButtonProps) => {
             <DialogFooter>
               <Button
                 type="button"
-                variant="secondary"
+                variant="outline"
                 onClick={() => {
                   setShowCreateModal(false);
                   setName("");
@@ -245,63 +261,90 @@ export const EncounterFileDrawingsTab: React.FC<EncounterFileSubTabProps> = (
       },
     }),
     enabled: canRead,
+    placeholderData: keepPreviousData,
   });
+
+  const totalCount = data?.count ?? 0;
 
   return (
     <Page>
-      <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
-        <div className="relative ml-1 max-w-96 min-w-72 flex-1">
-          <SearchIcon className="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-gray-500" />
-          <Input
-            placeholder={t("search")}
-            value={search || ""}
-            onChange={(e) => {
-              setPage(1);
-              setSearch(e.target.value);
-            }}
-            className="pl-8"
-          />
-        </div>
-        {canWrite && (
-          <NewDrawingButton
-            associatingType={props.type}
-            associatingId={associatingId}
-          />
-        )}
-      </div>
-
-      {isLoading ? (
-        <Loading />
-      ) : (
-        <>
-          {data?.results.length === 0 ? (
-            <div className="flex flex-col items-center justify-center p-8 text-gray-500">
-              <ImageOffIcon className="mb-2 text-4xl" />
-              <p className="text-lg font-medium">{t("no_drawings_so_far")}</p>
-              {canWrite && (
-                <p className="text-sm">{t("create_new_drawing_message")}</p>
-              )}
+      <Frame spacing="sm" className="min-w-0">
+        <FrameHeader className="flex-row flex-wrap items-center gap-2">
+          <InputGroup className="bg-background sm:w-auto sm:max-w-xs sm:flex-1">
+            <InputGroupInput
+              aria-label={t("search_drawings")}
+              placeholder={t("search_drawings")}
+              value={search}
+              onChange={(e) => {
+                setPage(1);
+                setSearch(e.target.value);
+              }}
+            />
+            <InputGroupAddon>
+              <SearchIcon />
+            </InputGroupAddon>
+          </InputGroup>
+          {canWrite && (
+            <div className="ml-auto">
+              <NewDrawingButton
+                associatingType={props.type}
+                associatingId={associatingId}
+              />
             </div>
+          )}
+        </FrameHeader>
+
+        <FramePanel
+          className={cn(
+            "min-w-0",
+            data?.results.length ? "p-3" : "overflow-hidden p-0",
+          )}
+        >
+          {isLoading ? (
+            <Loading />
+          ) : !data?.results.length ? (
+            <EmptyState
+              className="border-0 sm:p-10"
+              icon={<ImageOffIcon className="size-6" />}
+              title={t("no_drawings_so_far")}
+              description={
+                search
+                  ? t("no_drawings_match_search")
+                  : canWrite
+                    ? t("create_new_drawing_message")
+                    : undefined
+              }
+            />
           ) : (
-            <div className="ml-1 grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
-              {data?.results.map((drawing) => (
+            <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3">
+              {data.results.map((drawing) => (
                 <DrawingCard key={drawing.id} artifact={drawing} />
               ))}
             </div>
           )}
-        </>
-      )}
+        </FramePanel>
 
-      {data && (
-        <div className="mt-4 flex items-center justify-center">
-          <Pagination
-            cPage={page}
-            defaultPerPage={RESULTS_PER_PAGE}
-            data={{ totalCount: data.count }}
-            onChange={setPage}
-          />
-        </div>
-      )}
+        {totalCount > 0 && (
+          <FrameFooter className="flex-row flex-wrap items-center justify-between gap-3">
+            <p className="text-muted-foreground text-xs">
+              {t("drawings_result_range", {
+                start: (page - 1) * RESULTS_PER_PAGE + 1,
+                end: Math.min(page * RESULTS_PER_PAGE, totalCount),
+                total: totalCount,
+              })}
+            </p>
+            {totalCount > RESULTS_PER_PAGE && (
+              <Pagination
+                cPage={page}
+                defaultPerPage={RESULTS_PER_PAGE}
+                data={{ totalCount }}
+                onChange={setPage}
+                className=""
+              />
+            )}
+          </FrameFooter>
+        )}
+      </Frame>
     </Page>
   );
 };
@@ -320,7 +363,7 @@ const DrawingCard = ({ artifact }: { artifact: MetaArtifactRead }) => {
   return (
     <Card
       className={cn(
-        "group flex cursor-pointer flex-col gap-0 overflow-hidden rounded-xl border-gray-200 p-0 shadow-xs transition-all duration-200 hover:shadow-md",
+        "group flex cursor-pointer flex-col gap-0 overflow-hidden p-0 transition-all duration-200 hover:shadow-md",
         isSupported ? "cursor-pointer" : "cursor-not-allowed opacity-50",
       )}
       role="button"
@@ -332,13 +375,13 @@ const DrawingCard = ({ artifact }: { artifact: MetaArtifactRead }) => {
         }
       }}
     >
-      <div className="relative border-b border-gray-200">
+      <div className="relative border-b">
         <div className="h-60 w-full bg-white md:h-40">
           {isSupported ? (
             <>
               <ExcalidrawPreview obj={artifact} />
               <div className="absolute inset-0 flex items-end justify-center bg-linear-to-t from-black/50 to-transparent p-3 opacity-0 transition-opacity duration-200 group-hover:opacity-100">
-                <span className="flex items-center gap-1.5 rounded-full bg-white/95 px-3 py-1 text-sm font-medium text-gray-900 shadow-sm">
+                <span className="flex items-center gap-1.5 rounded-full bg-white/95 px-3 py-1 text-sm font-medium text-neutral-900 shadow-sm">
                   <EyeIcon className="size-4" />
                   {t("view")}
                 </span>
@@ -346,7 +389,7 @@ const DrawingCard = ({ artifact }: { artifact: MetaArtifactRead }) => {
             </>
           ) : (
             <>
-              <div className="flex h-full flex-col items-center justify-center gap-2 text-center text-red-700">
+              <div className="text-destructive flex h-full flex-col items-center justify-center gap-2 text-center">
                 <TriangleAlertIcon />
                 {t("unsupported_drawing_application", {
                   application: artifact.object_value.application,
@@ -358,25 +401,25 @@ const DrawingCard = ({ artifact }: { artifact: MetaArtifactRead }) => {
       </div>
       <CardContent className="flex flex-1 flex-col gap-3 p-4">
         <div className="flex items-center gap-2">
-          <span className="bg-primary-50 text-primary-600 flex size-8 shrink-0 items-center justify-center rounded-lg">
+          <span className="bg-primary/10 text-primary flex size-8 shrink-0 items-center justify-center rounded-lg">
             <FilePenLineIcon className="size-4" />
           </span>
-          <span className="truncate font-semibold text-gray-900">
-            {artifact.name}
-          </span>
+          <span className="truncate font-semibold">{artifact.name}</span>
         </div>
 
         {artifact.note && (
-          <p className="line-clamp-2 text-sm text-gray-600">{artifact.note}</p>
+          <p className="text-soft-foreground line-clamp-2 text-sm">
+            {artifact.note}
+          </p>
         )}
 
-        <div className="mt-auto flex flex-wrap items-center gap-x-4 gap-y-1 border-t border-gray-100 pt-3 text-xs text-gray-500">
+        <div className="border-soft-border text-muted-foreground mt-auto flex flex-wrap items-center gap-x-4 gap-y-1 border-t pt-3 text-xs">
           <span className="flex items-center gap-1.5">
-            <HistoryIcon className="size-3.5 text-gray-400" />
+            <HistoryIcon className="text-placeholder-foreground size-3.5" />
             <RelativeDateTooltip date={artifact.modified_date} />
           </span>
           <span className="flex items-center gap-1.5">
-            <UserIcon className="size-3.5 text-gray-400" />
+            <UserIcon className="text-placeholder-foreground size-3.5" />
             {formatName(artifact.created_by)}
           </span>
         </div>

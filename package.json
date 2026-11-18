@@ -32,6 +32,7 @@
     ]
   },
   "dependencies": {
+    "@base-ui/react": "^1.9.0",
     "@excalidraw/excalidraw": "^0.18.0",
     "@fontsource-variable/geist": "^5.2.9",
     "@tailwindcss/vite": "^4.1.4",
@@ -42,7 +43,6 @@
     "lint-staged": "^15.5.1",
     "lucide-react": "^0.575.0",
     "none": "^1.0.0",
-    "radix-ui": "^1.6.0",
     "raviger": "^5.3.0",
     "react": "^19.2.7",
     "react-dom": "^19.2.7",

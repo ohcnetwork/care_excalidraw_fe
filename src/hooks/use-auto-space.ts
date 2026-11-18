@@ -1,3 +1,8 @@
+/**
+ * @name use-auto-space
+ * @description Returns an onBeforeInput handler that auto-inserts a space after punctuation when the next character typed is not a space.
+ * @type registry:hook
+ */
 import * as React from "react";
 
 const PUNCT = new Set([".", ",", "!", "?", ";", ":"]);
@@ -25,10 +30,10 @@ const PUNCT = new Set([".", ",", "!", "?", ";", ":"]);
  *   and never enable on structured clinical or code fields.
  */
 export function useAutoSpace(
-  enabled: boolean
-): React.FormEventHandler<HTMLInputElement | HTMLTextAreaElement> {
+  enabled: boolean,
+): React.InputEventHandler<HTMLInputElement | HTMLTextAreaElement> {
   return React.useCallback(
-    (e: React.FormEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    (e: React.InputEvent<HTMLInputElement | HTMLTextAreaElement>) => {
       if (!enabled) return;
 
       const event = e.nativeEvent as InputEvent;
@@ -70,8 +75,10 @@ export function useAutoSpace(
       // Intercept the keystroke and re-insert as " <char>".
       // execCommand preserves undo history and positions the cursor correctly.
       event.preventDefault();
-      document.execCommand("insertText", false, "" + char);
+      // execCommand retains the native undo history for this opt-in enhancement.
+      // eslint-disable-next-line @typescript-eslint/no-deprecated
+      document.execCommand("insertText", false, " " + char);
     },
-    [enabled]
+    [enabled],
   );
 }

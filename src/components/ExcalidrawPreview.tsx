@@ -72,7 +72,7 @@ const ExcalidrawPreviewBase = memo(
     if (isLoading) {
       return (
         <div className="flex size-full items-center justify-center">
-          <LoaderCircleIcon className="animate-spin text-gray-400" />
+          <LoaderCircleIcon className="animate-spin text-placeholder-foreground" />
         </div>
       );
     }
